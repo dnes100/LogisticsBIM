@@ -1,0 +1,113 @@
+<div class="project">
+	<div class="row">
+		<div class="col-md-4 navigatorWrapper">
+                    <h1 class="projectNameHeader"></h1>
+                    
+                    <!--button type="button" class="btn btn-primary checkinBtn">Checkin Model</button-->
+                    
+		</div>
+		<div class="col-md-8 rightCol">
+			<div class="rightpanel ih">
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="checkinContainer"></div>
+
+
+<script>
+    function Project(main, poid){
+        var othis = this;
+        console.log("Project");
+        
+       /*
+        * Get project from local redis database
+            this.getProject = function(){
+            var url = "/NewIfcParser/getProjectByPid/" + pid;
+            data = null;
+            var successCallback = function(project, status, jqxhr){
+                $(".projectNameHeader").text(project.name);
+            };
+            var errorCallback = function(jqxhr, status, error){
+                console.log(error);
+                console.log(jqxhr);
+                console.log("Failure");
+            };
+            main.apiCall(url, "GET", data, successCallback, errorCallback); 
+        }; 
+        
+        $(".checkinBtn").click(function(){
+            $(".checkinContainer").load("/NewIfcParser/jsp/checkin.html", function(){
+                othis.checkin = new Checkin(main, othis, pid);
+            });
+        }); */
+        
+        
+        
+        this.getProjectByPoid = function(poid){
+            var url = "/json";
+            data = {
+                "token": "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042",
+                "request": {
+                  "interface": "Bimsie1ServiceInterface", 
+                  "method": "getProjectByPoid", 
+                  "parameters": {
+                    "poid": poid
+                  }
+                }
+            };
+            var successCallback = function(data, status, jqxhr){
+                console.log(data.response.result);
+                othis.project = data.response.result;
+                $(".projectNameHeader").text(othis.project.name);
+                othis.getRevision(othis.project);
+            };
+            main.bimserverApiCall(url, "POST", data, successCallback, null); 
+           
+        };
+        
+        this.downloadModel = function(actionId){
+            var url = "/json";
+            var data = {
+                "token": "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042",
+                "request": {
+                  "interface": "Bimsie1ServiceInterface", 
+                  "method": "getDownloadData", 
+                  "parameters": {
+                    "actionId": actionId
+                  }
+                } 
+            };
+            var successCallback = function(data, status, jqxhr){
+                console.log(data.response.result);
+            };
+            main.bimserverApiCall(url, "POST", data, successCallback, null); 
+    
+        };
+        
+        this.getRevision = function(project){
+            var url = "/json";
+            data = {
+                "token": "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042",
+                "request": {
+                  "interface": "Bimsie1ServiceInterface", 
+                  "method": "downloadRevisions", 
+                  "parameters": {
+                      "roids": project.revisions,
+                      "serializerOid": "3670054",
+                      "sync": "false"
+                  }
+                }
+            };
+            var successCallback = function(data, status, jqxhr){
+                console.log(data.response.result);
+                var actionId = data.response.result;
+                othis.downloadModel(actionId);
+            };
+            main.bimserverApiCall(url, "POST", data, successCallback, null);
+        };
+        this.getProjectByPoid(poid);
+        
+    }
+</script>

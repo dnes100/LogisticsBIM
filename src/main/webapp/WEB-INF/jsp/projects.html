@@ -1,0 +1,145 @@
+<div class="projects container">
+    <h1 class="header">Projects</h1>
+    <!--div class="well well-sm">Create a new project:
+        <form class="form-inline">
+            <div class="form-group">
+                <label class="sr-only" for="projectName">Project Name</label>
+                <input type="text" class="form-control projectName" id="projectName" placeholder="Project Name">
+            </div>
+            <button type="button" class="btn btn-primary newProject">Create Project</button>
+        </form>
+    </div-->
+	<table class="projectsTable table table-hover">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+                    <tr class="emptyProjectRow">
+                        <td><input type="text" class="form-control projectName" id="projectName" placeholder="Project Name"></td>
+                        <td><button type="button" class="btn btn-primary newProject">Create Project</button></td>
+                    </tr>
+		</tbody>
+	</table>
+</div>
+
+<script>
+function Projects(main) {
+	var othis = this;
+	console.log("Projects");
+        
+        this.getProjectsFromBimserver = function(){
+            var url = "/json";
+            data = {
+                "token": "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042",
+                "request": {
+                  "interface": "ServiceInterface",
+                  "method": "getUsersProjects",
+                  "parameters": {
+                    "uoid": "131074"
+                  }
+                }
+            };
+            var successCallback = function(data, status, jqxhr){
+                console.log(data);
+                console.log(data.response.result);
+                othis.projects = data.response.result;
+                
+                $.each(othis.projects, function(i, project){
+                    othis.addRowFilled(project);
+                });
+                
+                $(".projectItem").click(function(){
+                    console.log($(this).data("poid"));
+                    var poid = $(this).data("poid");
+                    
+                    $(".applicationContent").load("/NewIfcParser/jsp/project.html", function(){
+                        main.current = new Project(main, poid);
+                    });
+                });
+                
+            };
+            main.bimserverApiCall(url, "POST", data, successCallback, null); 
+           
+        };
+       
+        /*
+         * get projects from local redis database
+        this.getAllProjects = function(){
+            console.log("fetching all projects");
+            data = null;
+            successCallback = function(data, status, jqxhr){
+                var projects  = data;
+                console.log(projects);
+                $.each(projects, function(i, project){
+                    othis.addRowFilled(project);
+                });
+                
+                $(".projectItem").click(function(){
+                    console.log($(this).data("pid"));
+                    var pid = $(this).data("pid");
+                    
+                    $(".applicationContent").load("/NewIfcParser/jsp/project.html", function(){
+                        main.current = new Project(main, pid);
+                    });
+                });
+                
+                 $(".removeProject").click(function(){
+                    var pid = $(this).data("pid");
+                    othis.removeProject(pid, this);
+                });
+                
+                
+            };
+            errorCallback = function(jqxhr, status, error){
+                console.log(error);
+                console.log(jqxhr);
+                console.log("Failure");
+            };
+		main.apiCall("/NewIfcParser/projects", "GET", data, successCallback, errorCallback);
+        };
+        */
+        
+        $(".newProject").click(function(){
+            othis.addProject();
+        });
+        
+        
+        this.addProject = function(){
+            console.log("clicked new project button");
+            data = {"name": $("#projectName").val()};
+            if(!data.name){
+                alert("Enter project name.");
+                return false;
+            }
+            successCallback = function(data, status, jqxhr){
+                othis.addRowFilled(data);
+            };
+            main.apiCall("/NewIfcParser/newProject", "POST", data, successCallback, null);
+        };
+        
+        this.addRowFilled = function(project){
+            var remove_button = '<button type="button" class="btn btn-danger removeProject" data-pid="'+project.pid+'">Remove Project</button>';
+            var newRow = '<tr><td class="projectItem" data-poid="'+project.oid+'">'+project.name+'</td><td>'+project.schema+'</td><td>'+remove_button+'</td></tr>';
+            $(".emptyProjectRow").before(newRow);
+            $("#projectName").val("");
+        };
+        
+        this.removeProject = function(pid, target){
+            console.log("removing project with pid: "+ pid);
+            data = {"pid": pid};
+            successCallback = function(data, status, jqxhr){
+                console.log("Removed project with pid: "+ pid);
+                $(target).closest("tr").remove();
+            };
+            main.apiCall("/NewIfcParser/removeProject", "POST", data, successCallback, null);
+        };
+        
+        this.getProjectsFromBimserver();      
+  
+  
+}
+
+</script>
