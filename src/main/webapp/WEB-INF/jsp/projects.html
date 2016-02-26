@@ -55,7 +55,7 @@ function Projects(main) {
                     console.log($(this).data("poid"));
                     var poid = $(this).data("poid");
                     
-                    $(".applicationContent").load("/NewIfcParser/jsp/project.html", function(){
+                    $(".applicationContent").load("/LogisticsBIM/jsp/project.html", function(){
                         main.current = new Project(main, poid);
                     });
                 });
@@ -81,7 +81,7 @@ function Projects(main) {
                     console.log($(this).data("pid"));
                     var pid = $(this).data("pid");
                     
-                    $(".applicationContent").load("/NewIfcParser/jsp/project.html", function(){
+                    $(".applicationContent").load("/jsp/project.html", function(){
                         main.current = new Project(main, pid);
                     });
                 });
@@ -98,7 +98,7 @@ function Projects(main) {
                 console.log(jqxhr);
                 console.log("Failure");
             };
-		main.apiCall("/NewIfcParser/projects", "GET", data, successCallback, errorCallback);
+		main.apiCall("/projects", "GET", data, successCallback, errorCallback);
         };
         */
         
@@ -117,7 +117,7 @@ function Projects(main) {
             successCallback = function(data, status, jqxhr){
                 othis.addRowFilled(data);
             };
-            main.apiCall("/NewIfcParser/newProject", "POST", data, successCallback, null);
+            main.apiCall("/newProject", "POST", data, successCallback, null);
         };
         
         this.addRowFilled = function(project){
@@ -134,7 +134,7 @@ function Projects(main) {
                 console.log("Removed project with pid: "+ pid);
                 $(target).closest("tr").remove();
             };
-            main.apiCall("/NewIfcParser/removeProject", "POST", data, successCallback, null);
+            main.apiCall("/removeProject", "POST", data, successCallback, null);
         };
         
         this.getProjectsFromBimserver();      

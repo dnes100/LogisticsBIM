@@ -50,14 +50,14 @@ function Login(main) {
                 authenticated = JSON.parse(data);
                 if(authenticated){
                     console.log("Authenticated!");
-                    $(".applicationContent").load("/NewIfcParser/jsp/projects.html", function(){
+                    $(".applicationContent").load("/LogisticsBIM/jsp/projects.html", function(){
                         main.current = new Projects(main);
                     });
                 } else {
                     console.error("Authentication Failed!");
                 }
             };
-            main.apiCall("/NewIfcParser/login", "POST", data, successCallback, null);
+            main.apiCall("/login", "POST", data, successCallback, null);
 	});
 }
 </script>

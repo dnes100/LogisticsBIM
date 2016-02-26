@@ -24,7 +24,7 @@
        /*
         * Get project from local redis database
             this.getProject = function(){
-            var url = "/NewIfcParser/getProjectByPid/" + pid;
+            var url = "/getProjectByPid/" + pid;
             data = null;
             var successCallback = function(project, status, jqxhr){
                 $(".projectNameHeader").text(project.name);
@@ -38,7 +38,7 @@
         }; 
         
         $(".checkinBtn").click(function(){
-            $(".checkinContainer").load("/NewIfcParser/jsp/checkin.html", function(){
+            $(".checkinContainer").load("/jsp/checkin.html", function(){
                 othis.checkin = new Checkin(main, othis, pid);
             });
         }); */

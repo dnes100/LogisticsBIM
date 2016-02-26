@@ -2,12 +2,13 @@ function Main(){
     othis = this;
     console.log("main.js loaded!");
 
-    $(".applicationContent").load("/NewIfcParser/jsp/login.html", function(){
+    $(".applicationContent").load("/LogisticsBIM/jsp/login.html", function(){
         othis.current = new Login(othis);
     });
     
     this.apiCall = function(url, method, data, successCallback, errorCallback){
         console.log("main.js apiCall");
+        url = "/LogisticsBIM" + url;
         $.ajax({
             url: url,
             method: method,
