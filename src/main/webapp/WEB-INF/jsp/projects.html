@@ -13,12 +13,17 @@
 		<thead>
 			<tr>
 				<th>Name</th>
+                                <th>Project Schema</th>
 				<th>Actions</th>
 			</tr>
 		</thead>
 		<tbody>
                     <tr class="emptyProjectRow">
-                        <td><input type="text" class="form-control projectName" id="projectName" placeholder="Project Name"></td>
+                        <td><input type="text" class="form-control projectNameInput" id="projectNameInput" placeholder="Project Name" /></td>
+                        <td><select class="form-control projectSchemaInput" id="projectSchemaInput" >
+                                <option value="ifc2x3tc1">Ifc2x3tc1</option>
+                            </select>
+                        </td>
                         <td><button type="button" class="btn btn-primary newProject">Create Project</button></td>
                     </tr>
 		</tbody>
@@ -33,12 +38,12 @@ function Projects(main) {
         this.getProjectsFromBimserver = function(){
             var url = "/json";
             data = {
-                "token": "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042",
+               // "token": main.bimApiToken,
                 "request": {
                   "interface": "ServiceInterface",
                   "method": "getUsersProjects",
                   "parameters": {
-                    "uoid": "131074"
+                    "uoid": main.uoid
                   }
                 }
             };
@@ -48,18 +53,11 @@ function Projects(main) {
                 othis.projects = data.response.result;
                 
                 $.each(othis.projects, function(i, project){
-                    othis.addRowFilled(project);
+                    if(project.state === "ACTIVE"){
+                       othis.addRowFilled(project);
+                    }
                 });
-                
-                $(".projectItem").click(function(){
-                    console.log($(this).data("poid"));
-                    var poid = $(this).data("poid");
-                    
-                    $(".applicationContent").load("/LogisticsBIM/jsp/project.html", function(){
-                        main.current = new Project(main, poid);
-                    });
-                });
-                
+                othis.setCallbacks();
             };
             main.bimserverApiCall(url, "POST", data, successCallback, null); 
            
@@ -86,7 +84,7 @@ function Projects(main) {
                     });
                 });
                 
-                 $(".removeProject").click(function(){
+                $(".removeProject").click(function(){
                     var pid = $(this).data("pid");
                     othis.removeProject(pid, this);
                 });
@@ -109,32 +107,69 @@ function Projects(main) {
         
         this.addProject = function(){
             console.log("clicked new project button");
-            data = {"name": $("#projectName").val()};
-            if(!data.name){
+            data = {
+                "request": {
+                  "interface": "Bimsie1ServiceInterface", 
+                  "method": "addProject", 
+                  "parameters": {
+                    "projectName": $("#projectNameInput").val(),
+                    "schema": $("#projectSchemaInput").val()
+                  }
+                }
+            };
+            if(!data.request.parameters.projectName){
                 alert("Enter project name.");
                 return false;
             }
             successCallback = function(data, status, jqxhr){
-                othis.addRowFilled(data);
+                othis.addRowFilled(data.response.result);
+                othis.setCallbacks();
             };
-            main.apiCall("/newProject", "POST", data, successCallback, null);
+            main.bimserverApiCall("/json", "POST", data, successCallback, null);
         };
         
         this.addRowFilled = function(project){
-            var remove_button = '<button type="button" class="btn btn-danger removeProject" data-pid="'+project.pid+'">Remove Project</button>';
+            var remove_button = '<button type="button" class="btn btn-danger removeProject" data-poid="'+project.oid+'">Remove Project</button>';
             var newRow = '<tr><td class="projectItem" data-poid="'+project.oid+'">'+project.name+'</td><td>'+project.schema+'</td><td>'+remove_button+'</td></tr>';
             $(".emptyProjectRow").before(newRow);
-            $("#projectName").val("");
+            $("#projectNameInput").val("");
         };
         
-        this.removeProject = function(pid, target){
-            console.log("removing project with pid: "+ pid);
-            data = {"pid": pid};
-            successCallback = function(data, status, jqxhr){
-                console.log("Removed project with pid: "+ pid);
-                $(target).closest("tr").remove();
+        this.removeProject = function(poid, target){
+            console.log("removing project with poid "+ poid);
+            data = {
+                "request": {
+                  "interface": "Bimsie1ServiceInterface", 
+                  "method": "deleteProject", 
+                  "parameters": {
+                    "poid": poid
+                  }
+                }
             };
-            main.apiCall("/removeProject", "POST", data, successCallback, null);
+            successCallback = function(data, status, jqxhr){
+                if(data.response.result){
+                    console.log("Removed project");
+                    $(target).closest("tr").remove();
+                }
+                
+            };
+            main.bimserverApiCall("/json", "POST", data, successCallback, null);
+        };
+        
+        this.setCallbacks = function(){
+             $(".projectItem").off("click").click(function(){
+                    console.log($(this).data("poid"));
+                    var poid = $(this).data("poid");
+                    
+                    $(".applicationContent").load("/LogisticsBIM/jsp/project.html", function(){
+                        main.current = new Project(main, poid);
+                    });
+                });
+                
+                $(".removeProject").off("click").click(function(){
+                    var poid = $(this).data("poid");
+                    othis.removeProject(poid, this);
+                });
         };
         
         this.getProjectsFromBimserver();      

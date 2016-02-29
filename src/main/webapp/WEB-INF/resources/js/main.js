@@ -1,5 +1,10 @@
 function Main(){
     othis = this;
+    this.bimserverBaseUrl = "http://localhost:8080";
+    this.uoid = "131074"; //user object id
+    this.bimApiToken = "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042";
+    this.serializerOid = "3670054"; //serializer oid for ifc step serializer
+    
     console.log("main.js loaded!");
 
     $(".applicationContent").load("/LogisticsBIM/jsp/login.html", function(){
@@ -19,10 +24,11 @@ function Main(){
     };
     
     this.bimserverApiCall = function(url, method, data, successCallback, errorCallback){
-        bimserverBaseUrl = "http://localhost:8080";
         console.log("main.js Bimserver apiCall");
+        
+        data.token = othis.bimApiToken;
         $.ajax({
-            url: bimserverBaseUrl + url,
+            url: othis.bimserverBaseUrl + url,
             method: method,
             data: JSON.stringify(data),
             error: othis.errorCallback,

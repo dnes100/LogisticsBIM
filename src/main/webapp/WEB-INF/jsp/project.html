@@ -48,7 +48,6 @@
         this.getProjectByPoid = function(poid){
             var url = "/json";
             data = {
-                "token": "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042",
                 "request": {
                   "interface": "Bimsie1ServiceInterface", 
                   "method": "getProjectByPoid", 
@@ -70,7 +69,6 @@
         this.downloadModel = function(actionId){
             var url = "/json";
             var data = {
-                "token": "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042",
                 "request": {
                   "interface": "Bimsie1ServiceInterface", 
                   "method": "getDownloadData", 
@@ -89,13 +87,12 @@
         this.getRevision = function(project){
             var url = "/json";
             data = {
-                "token": "51d53903399651e5e94693e451e3014241fa1d9bf50111973d0022b8ec29299a7ce9c0c10d934827b691334ae703e042",
                 "request": {
                   "interface": "Bimsie1ServiceInterface", 
                   "method": "downloadRevisions", 
                   "parameters": {
                       "roids": project.revisions,
-                      "serializerOid": "3670054",
+                      "serializerOid": main.serializerOid,
                       "sync": "false"
                   }
                 }
